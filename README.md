@@ -200,7 +200,7 @@ Para levantar la aplicación
 ### En la nube
 El proyecto se encuentra desplegado en Heroku:
 
-La url para acceder y realizar pruebas en vivo con la api es [http://apimyhotel-env.eba-aeaeep3n.us-east-2.elasticbeanstalk.com/](http://apimyhotel-env.eba-aeaeep3n.us-east-2.elasticbeanstalk.com/api/servicios)**
+La url para acceder y realizar pruebas en vivo con la api es [https://api-myhotel-js.herokuapp.com/api/servicios](https://api-myhotel-js.herokuapp.com/api/servicios)**
 
 ****Sujeto a disponibilidad del servicio**
 
