@@ -2,7 +2,7 @@
 
 # Construcción de API REST de un hotel
 
-Para revisar la misma aplicación pero desarrollada con Backend Java haga clic [aquí]()
+Para revisar la misma aplicación pero desarrollada con Backend Java haga clic [aquí](https://elianachv.github.io/api-myhotel/)
 
 ## Índice
 1. [Descripción](#descripcion)
