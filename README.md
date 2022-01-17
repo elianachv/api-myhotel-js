@@ -8,18 +8,21 @@ Para revisar la misma aplicación pero desarrollada con Backend Java haga clic [
 1. [Descripción](#descripcion)
 2. [Tecnologías y aplicaciones utilizadas](#tecnologias)
 3. [Estructura del proyecto](#estructura)
+
  * [Base de datos](#bd)
    * [Servicios](#bd-servicios)
    * [Clientes](#bd-clientes)
    * [Grupos](#bd-grupos)
    * [Registros](#bd-registros)
    * [Ingresos](#bd-ingresos)
+
  * [API](#api)
    * [Servicios](#api-servicios)
    * [Clientes](#api-clientes)
    * [Grupos](#api-grupos)
    * [Registros](#api-registros)
    * [Ingresos](#api-ingresos)
+
 4. [Despliegue](#despliegue)
 5. [Pruebas](#pruebas)
 6. [Contacto](#contacto)

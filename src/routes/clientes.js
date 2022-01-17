@@ -2,6 +2,154 @@ const express = require("express");
 const router = express.Router();
 const mysql = require("../database");
 
+function calcularTotalById(id, res) {
+  let getCliente = `SELECT * FROM clientes WHERE id = ${id}`;
+  let getIngreso = `SELECT * FROM ingresos  WHERE cedula = ? ORDER BY id DESC LIMIT 1`;
+  let getRegistros = `SELECT * FROM registros WHERE cedula = ? and id_ingreso = ?`;
+  let getServicio = `SELECT * FROM servicios WHERE identificador  = ?`;
+  let setTotal = `UPDATE ingresos SET total_consumo = ? WHERE id = ?`;
+
+
+  mysql.query(getCliente, (err, rows, fields) => {
+    if (!err && rows.length !== 0) {
+      let cedula = rows[0].cedula;
+      mysql.query(getIngreso, [cedula], (err, rows, fields) => {
+        if (!err && rows.length !== 0) {
+          let total = 0;
+          let id_ingreso = rows[0].id;
+
+          mysql.query(
+            getRegistros,
+            [cedula, id_ingreso],
+            (err, rows, fields) => {
+              if (!err && rows.length !== 0) {
+                let servicios = rows;
+                for (let index = 0; index < rows.length; index++) {
+                  const registro = rows[index];
+                  mysql.query(
+                    getServicio,
+                    [registro.servicio],
+                    (err, rows, fields) => {
+                      if (!err) {
+                        total += Number.parseInt(rows[0].precio);
+                        if (index === servicios.length - 1) {
+                          mysql.query(
+                            setTotal,
+                            [total, id_ingreso],
+                            (err, rows, fields) => {
+                              if (err) {
+                                console.log(err);
+                              }
+                            }
+                          );
+                          res.json({
+                            servicios: servicios,
+                            total: total,
+                            mensaje: `El cliente con CC ${cedula} debe pagar ${total}`,
+                          });
+                        }
+                      } else {
+                        console.error("Error en el calculo", err);
+                      }
+                    }
+                  );
+                }
+
+                // mysql.query(`UPDATE ingresos SET total_consumo = ${total} WHERE id = ${id_ingreso}`,(err,rows,fields)=>{
+
+                //   if(!err){
+                //     res.json({total: total, mensaje: `El cliente con CC ${cedula} debe pagar ${total}`})
+
+                //   }
+                // })
+              } else {
+                res
+                  .status(500)
+                  .json({ error: "No fue posible calcular el checkout" });
+              }
+            }
+          );
+        } else {
+          res.status(400).json({ error: "Cliente no ingresado" });
+        }
+      });
+      console.log();
+    } else {
+      res.status(400).json({ error: "Cliente no registrado" });
+    }
+  });
+}
+
+function calcularTotalByCC(cc, res) {
+  let getCliente = `SELECT * FROM clientes WHERE cedula = ${cc}`;
+  let getIngreso = `SELECT * FROM ingresos  WHERE cedula = ? ORDER BY id DESC LIMIT 1`;
+  let getRegistros = `SELECT * FROM registros WHERE cedula = ? and id_ingreso = ?`;
+  let getServicio = `SELECT * FROM servicios WHERE identificador  = ?`;
+  let setTotal = `UPDATE ingresos SET total_consumo = ? WHERE id = ?`;
+
+  mysql.query(getCliente, (err, rows, fields) => {
+    if (!err && rows.length !== 0) {
+      let cedula = rows[0].cedula;
+      mysql.query(getIngreso, [cedula], (err, rows, fields) => {
+        if (!err && rows.length !== 0) {
+          let total = 0;
+          let id_ingreso = rows[0].id;
+
+          mysql.query(
+            getRegistros,
+            [cedula, id_ingreso],
+            (err, rows, fields) => {
+              if (!err && rows.length !== 0) {
+                let servicios = rows;
+                for (let index = 0; index < rows.length; index++) {
+                  const registro = rows[index];
+                  mysql.query(
+                    getServicio,
+                    [registro.servicio],
+                    (err, rows, fields) => {
+                      if (!err) {
+                        total += Number.parseInt(rows[0].precio);
+                        if (index === servicios.length - 1) {
+                          mysql.query(
+                            setTotal,
+                            [total, id_ingreso],
+                            (err, rows, fields) => {
+                              if (err) {
+                                console.log(err);
+                              }
+                            }
+                          );
+
+                          res.json({
+                            servicios: servicios,
+                            total: total,
+                            mensaje: `El cliente con CC ${cedula} debe pagar ${total}`,
+                          });
+                        }
+                      } else {
+                        console.error("Error en el calculo", err);
+                      }
+                    }
+                  );
+                }
+              } else {
+                res
+                  .status(500)
+                  .json({ error: "No fue posible calcular el checkout" });
+              }
+            }
+          );
+        } else {
+          res.status(400).json({ error: "Cliente no ingresado" });
+        }
+      });
+      console.log();
+    } else {
+      res.status(400).json({ error: "Cliente no registrado" });
+    }
+  });
+}
+
 router.get("/api/clientes", (req, res) => {
   mysql.query("SELECT * FROM clientes", (err, rows, fields) => {
     if (!err) {
@@ -30,7 +178,9 @@ router.get("/api/clientes/id/:id", (req, res) => {
   );
 });
 
-router.get("/api/clientes/checkout/id/:id", (req, res) => {});
+router.get("/api/clientes/checkout/id/:id", (req, res) => {
+  calcularTotalById(req.params.id, res);
+});
 
 router.get("/api/clientes/cc/:cedula", (req, res) => {
   mysql.query(
@@ -48,7 +198,9 @@ router.get("/api/clientes/cc/:cedula", (req, res) => {
   );
 });
 
-router.get("/api/clientes/checkout/cc/:cedula", (req, res) => {});
+router.get("/api/clientes/checkout/cc/:cedula", (req, res) => {
+  calcularTotalByCC(req.params.cedula, res);
+});
 
 router.post("/api/clientes", (req, res) => {
   const { cedula, nombre, correo, telefono } = req.body;
